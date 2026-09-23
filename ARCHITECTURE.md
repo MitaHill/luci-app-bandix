@@ -352,7 +352,7 @@ graph TB
     subgraph "API端点详情"
         TRAFFIC_ENDPOINTS[流量监控端点<br/>GET /api/traffic/devices<br/>GET /api/traffic/limits/schedule<br/>POST /api/traffic/limits/schedule<br/>GET /api/traffic/metrics<br/>GET /api/traffic/bindings<br/>POST /api/traffic/bindings]
         DNS_ENDPOINTS[DNS监控端点<br/>GET /api/dns/queries<br/>GET /api/dns/stats]
-        CONN_ENDPOINTS[连接统计端点<br/>GET /api/connection/devices]
+        CONN_ENDPOINTS[连接统计端点<br/>GET /api/connection/devices<br/>GET /api/connection/flows]
     end
 
     TRAFFIC_API -.-> TRAFFIC_ENDPOINTS
@@ -453,10 +453,13 @@ graph TD
 
 
 #### 核心功能
-- **TCP连接状态跟踪**：通过读取 `/proc/net/nf_conntrack` 文件统计不同状态的TCP连接数
-- **UDP连接统计**：统计UDP连接数量
-- **设备关联**：结合ARP表将连接统计与MAC/IP地址关联
+- **TCP连接状态跟踪**：执行 `conntrack -L` 统计不同状态的 TCP 连接数。conntrack 不带 `-f` 时 family 缺省为 IPv4，
+  因此 IPv4 与 IPv6 各取一次再合并
+- **UDP连接统计**：统计 UDP 连接数量
+- **设备关联**：IPv4 结合 ARP 表与接口子网，IPv6 结合邻居表与接口的 GUA/ULA 前缀，把连接归属到 MAC
 - **全局统计**：提供网络范围的连接统计信息（每3秒更新一次）
+- **连接明细**：`GET /api/connection/flows` 返回单条连接的五元组与收发计数，支持按源地址、协议、TCP 状态过滤和分页。
+  按设备 IPv4 过滤时会自动展开为同一 MAC 的全部地址，该设备的 IPv6 连接一并返回
 
 
 ## 部署架构

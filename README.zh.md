@@ -63,7 +63,7 @@ LuCI Bandix 基于 LuCI 框架开发，为 OpenWrt 路由器提供网络流量�
 - 自动获取 DHCP/DNS 中主机名 (静态地址分配)
 - 基于 Rust eBPF 高性能实现
 - 支持 LAN/WAN 网速监控
-- 支持设备 TCP/UDP 连接数监控
+- 支持设备 TCP/UDP 连接数监控与连接明细查看（IPv4/IPv6）
 - 支持 WAN 网速限制
 - 支持按设备设置每分钟、每小时、每天、每周、每月及累计 WAN 流量配额，超限自动阻断
 - 支持 IPv4/IPv6

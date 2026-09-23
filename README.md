@@ -62,7 +62,7 @@ LuCI Bandix is developed based on the LuCI framework, offering network traffic m
 - Automatically obtain the host name from DHCP/DNS (Static Leases)
 - High-performance implementation based on Rust eBPF
 - Support for LAN/WAN speed monitoring
-- Support device TCP/UDP connection number monitoring
+- Support device TCP/UDP connection number monitoring and per-flow details (IPv4/IPv6)
 - Support for WAN speed limitation
 - Per-device minute, hourly, daily, weekly, monthly, and lifetime WAN traffic quotas with automatic blocking
 - Support IPv4/IPv6
