@@ -133,12 +133,17 @@ function formatSize(bytes) {
 }
 
 // 格式化设备名称
-// 地址和端口分开渲染：IPv6 地址可能以 :: 结尾，拼成 addr + ':' + port 会得到
-// '2600:1900:4001:4b5:8000:::80' 这种三冒号的非法写法，肉眼无法分辨地址边界
+// IPv6 地址按 RFC 3986 用方括号包起来，一是避免 '2600:...:8000::' + ':' + '80' 拼出
+// ':::80' 这种分不清边界的写法，二是选中复制出来就是 [addr]:port，可以直接粘去用。
+// 地址和端口是行内元素，复制时不会被拆成两行；端口自身 nowrap，不会被折断
 function flowEndpointCell(addr, port) {
+    var text = addr || '-';
+    if (text.indexOf(':') >= 0) {
+        text = '[' + text + ']';
+    }
     return E('td', { 'class': 'flows-addr-cell' }, [
-        E('div', { 'class': 'flows-addr' }, addr || '-'),
-        E('div', { 'class': 'flows-port' }, port ? ':' + port : '')
+        E('span', { 'class': 'flows-addr' }, text),
+        E('span', { 'class': 'flows-port' }, port ? ':' + port : '')
     ]);
 }
 
@@ -728,21 +733,21 @@ return view.extend({
             .flows-modal-content .flows-table th:nth-child(1),
             .flows-modal-content .flows-table td:nth-child(1) { width: 5%; }
             .flows-modal-content .flows-table th:nth-child(2),
-            .flows-modal-content .flows-table td:nth-child(2) { width: 7%; }
+            .flows-modal-content .flows-table td:nth-child(2) { width: 10%; }
             .flows-modal-content .flows-table th:nth-child(3),
-            .flows-modal-content .flows-table td:nth-child(3) { width: 15.25%; }
+            .flows-modal-content .flows-table td:nth-child(3) { width: 14.75%; }
             .flows-modal-content .flows-table th:nth-child(4),
-            .flows-modal-content .flows-table td:nth-child(4) { width: 15.25%; }
+            .flows-modal-content .flows-table td:nth-child(4) { width: 14.75%; }
             .flows-modal-content .flows-table th:nth-child(5),
-            .flows-modal-content .flows-table td:nth-child(5) { width: 10%; }
+            .flows-modal-content .flows-table td:nth-child(5) { width: 9%; }
             .flows-modal-content .flows-table th:nth-child(6),
-            .flows-modal-content .flows-table td:nth-child(6) { width: 15.25%; }
+            .flows-modal-content .flows-table td:nth-child(6) { width: 14.75%; }
             .flows-modal-content .flows-table th:nth-child(7),
-            .flows-modal-content .flows-table td:nth-child(7) { width: 15.25%; }
+            .flows-modal-content .flows-table td:nth-child(7) { width: 14.75%; }
             .flows-modal-content .flows-table th:nth-child(8),
-            .flows-modal-content .flows-table td:nth-child(8) { width: 10%; }
+            .flows-modal-content .flows-table td:nth-child(8) { width: 9%; }
             .flows-modal-content .flows-table th:nth-child(9),
-            .flows-modal-content .flows-table td:nth-child(9) { width: 7%; }
+            .flows-modal-content .flows-table td:nth-child(9) { width: 8%; }
 
             /* IPv6 没有 NAT，回复方向恒为源方向的镜像，隐藏后地址列能放下整条 IPv6 地址 */
             .flows-modal-content .flows-table.hide-repl th:nth-child(6),
@@ -750,19 +755,24 @@ return view.extend({
             .flows-modal-content .flows-table.hide-repl th:nth-child(7),
             .flows-modal-content .flows-table.hide-repl td:nth-child(7) { display: none; }
             .flows-modal-content .flows-table.hide-repl th:nth-child(1),
-            .flows-modal-content .flows-table.hide-repl td:nth-child(1) { width: 6%; }
+            .flows-modal-content .flows-table.hide-repl td:nth-child(1) { width: 4%; }
             .flows-modal-content .flows-table.hide-repl th:nth-child(2),
-            .flows-modal-content .flows-table.hide-repl td:nth-child(2) { width: 7%; }
+            .flows-modal-content .flows-table.hide-repl td:nth-child(2) { width: 10%; }
             .flows-modal-content .flows-table.hide-repl th:nth-child(3),
-            .flows-modal-content .flows-table.hide-repl td:nth-child(3) { width: 27%; }
+            .flows-modal-content .flows-table.hide-repl td:nth-child(3) { width: 31%; }
             .flows-modal-content .flows-table.hide-repl th:nth-child(4),
-            .flows-modal-content .flows-table.hide-repl td:nth-child(4) { width: 27%; }
+            .flows-modal-content .flows-table.hide-repl td:nth-child(4) { width: 31%; }
             .flows-modal-content .flows-table.hide-repl th:nth-child(5),
-            .flows-modal-content .flows-table.hide-repl td:nth-child(5) { width: 11%; }
+            .flows-modal-content .flows-table.hide-repl td:nth-child(5) { width: 9.5%; }
             .flows-modal-content .flows-table.hide-repl th:nth-child(8),
-            .flows-modal-content .flows-table.hide-repl td:nth-child(8) { width: 11%; }
+            .flows-modal-content .flows-table.hide-repl td:nth-child(8) { width: 9.5%; }
             .flows-modal-content .flows-table.hide-repl th:nth-child(9),
-            .flows-modal-content .flows-table.hide-repl td:nth-child(9) { width: 11%; }
+            .flows-modal-content .flows-table.hide-repl td:nth-child(9) { width: 5%; }
+
+            /* 紧凑模式下再降一档字号，最长的 IPv6 地址才能完整落在一行里 */
+            .flows-modal-content .flows-table.hide-repl .flows-addr-cell {
+                font-size: 11px;
+            }
 
             .flows-modal-content .flows-table th,
             .flows-modal-content .flows-table td {
@@ -779,13 +789,20 @@ return view.extend({
 
             .flows-modal-content .flows-addr-cell {
                 word-break: break-all;
-                font-size: 0.75rem;
+                font-size: 12px;
                 font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
                 line-height: 1.35;
             }
 
             .flows-modal-content .flows-addr-cell .flows-port {
                 opacity: 0.6;
+                white-space: nowrap;
+            }
+
+            /* ESTABLISHED 是单个长单词，宽度不够时必须允许断开，否则会压到相邻列上 */
+            .flows-modal-content .flows-table td.flows-state-cell {
+                overflow-wrap: anywhere;
+                word-break: break-word;
             }
 
             .flows-modal-content .flows-repl-toggle {
@@ -1240,7 +1257,7 @@ return view.extend({
                         var protoCls = (f.protocol || '').toLowerCase() === 'tcp' ? 'flows-protocol-tcp' : 'flows-protocol-udp';
                         tableBody.appendChild(E('tr', {}, [
                             E('td', { 'class': protoCls }, (f.protocol || '-').toUpperCase()),
-                            E('td', { 'class': stateCls }, f.state || '-'),
+                            E('td', { 'class': 'flows-state-cell ' + stateCls }, f.state || '-'),
                             flowEndpointCell(f.orig && f.orig.src, f.orig && f.orig.sport),
                             flowEndpointCell(f.orig && f.orig.dst, f.orig && f.orig.dport),
                             E('td', {}, sendStr),
